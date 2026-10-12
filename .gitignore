@@ -1,0 +1,38 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+env/
+venv/
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.orig
+
+# Raw logs and dumps (markdown guides and validation notes are preserved)
+*.log
+logs/*.jsonl
+!logs/*.md
+!logs/README.md
+
+# Core dumps and binaries
+core
+*.core
+
+# Parallel agent checkouts are separate Git worktrees
+.worktrees/

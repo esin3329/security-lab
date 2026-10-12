@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://security-lab.local/schemas/benchmark-run.schema.json",
+  "title": "security-lab 벤치마크 실행 로그 스키마 (MVP)",
+  "description": "Strix 등 도구 실행 1회분의 지표 기록 형식. logs/ 에 JSONL(한 줄 1 객체, append-only)로 저장한다.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "timestamp",
+    "tool",
+    "tool_version",
+    "target",
+    "metrics"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "실행 고유 ID (예: 2026-10-12-juice-shop-strix-001)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "실행 시작 시각 (ISO 8601, UTC)"
+    },
+    "tool": {
+      "type": "string",
+      "enum": ["strix", "manual"],
+      "description": "MVP 측정 대상. artex-ko, rea는 Phase 2 이후 추가."
+    },
+    "tool_version": {
+      "type": "string",
+      "description": "고정 버전 태그 (latest 금지)"
+    },
+    "target": {
+      "type": "object",
+      "required": ["name", "host_port"],
+      "properties": {
+        "name": { "type": "string", "description": "예: juice-shop" },
+        "host_port": { "type": "string", "description": "예: 127.0.0.1:3000 (allowlist와 일치해야 함)" }
+      }
+    },
+    "time_limit_min": {
+      "type": "integer",
+      "default": 15,
+      "description": "동일 시간제한 (기본 15분)"
+    },
+    "repeat_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "description": "3회 반복 중 몇 번째 실행인지"
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "tp",
+        "fp",
+        "poc_success_rate",
+        "duration_sec",
+        "token_cost",
+        "human_interventions",
+        "reproducibility",
+        "explainability"
+      ],
+      "properties": {
+        "tp": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "지표 1. True Positive 수 (ground-truth와 대조해 확정된 참 탐지)"
+        },
+        "fp": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "지표 2. False Positive 수 (오탐 수)"
+        },
+        "poc_success_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "지표 3. PoC 성공률 (성공 PoC 수 / 시도 PoC 수, 0~1)"
+        },
+        "duration_sec": {
+          "type": "number",
+          "minimum": 0,
+          "description": "지표 4. 실행 시간 (초, 래퍼 시작~종료)"
+        },
+        "token_cost": {
+          "type": "object",
+          "required": ["tokens", "cost_usd"],
+          "properties": {
+            "tokens": { "type": "integer", "minimum": 0, "description": "지표 5a. 사용 토큰 수" },
+            "cost_usd": { "type": "number", "minimum": 0, "description": "지표 5b. API 비용 (USD)" }
+          }
+        },
+        "human_interventions": {
+          "type": "object",
+          "required": ["count"],
+          "properties": {
+            "count": { "type": "integer", "minimum": 0, "description": "지표 6a. 사람 개입 횟수" },
+            "minutes": { "type": "number", "minimum": 0, "description": "지표 6b(선택). 사람 개입 시간(분)" }
+          }
+        },
+        "reproducibility": {
+          "type": "string",
+          "enum": ["재현 성공", "재현 실패", "부분 재현"],
+          "description": "지표 7. 재현성 (동일 조건 재실행 시 동일 결과 여부)"
+        },
+        "explainability": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "지표 8. 설명가능성 (1~5 루브릭, reports/ 비교표 기준)"
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "관찰 메모 (한국어, 선택)"
+    }
+  }
+}
