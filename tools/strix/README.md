@@ -1,7 +1,7 @@
 # Strix 실행 래퍼 안내 (승인된 로컬 웹 탐색/검증)
 
 > 대상: 승인된 로컬 웹 실습 타겟(OWASP Juice Shop)만. 외부 서버 및 공용 실습 사이트 대상 스캔 절대 금지.  
-> 현재 원본은 구형 입력 검사/dry-run 설계이며 추가 인자 미지정 시 코드 7로 거부되는 결함이 있습니다. 실제 Docker/Strix 실행은 미구현이고 별도 수정은 미통합·미검증입니다.
+> 구형 PowerShell dry-run 래퍼(`run.ps1`)는 폐기·삭제했습니다. 현재 실행 진입점은 `tools/lab/strix_tool.py`(`python3 tools/lab/practice.py --tool strix ...`)이며, 코드 통합은 완료했으나 실제 서버 VM에서의 설치·실행은 아직 수행하지 않았습니다. 아래 2~4절은 폐기된 과거 산출물 기록이고, 현재 상태는 5절을 따릅니다.
 
 ---
 
@@ -15,13 +15,14 @@
 
 ## 2. 파일 구성
 
-- `run.ps1` — 구형 PowerShell 입력 검사/dry-run 설계. 현재 미지정 `StrixArgs` 처리 결함이 있어 실습용 실행 진입점으로 사용하지 않는다. 원본에는 `-DryRun`/`-Execute` 옵션이 없다.
+- `run.ps1` — **삭제됨.** 구형 PowerShell 입력 검사/dry-run 설계였고 미지정 `StrixArgs` 처리 결함(코드 7)이 있었다. `tools/lab/strix_tool.py`로 대체했다.
 - `targets.allow` — 허용 타겟 목록. 정확히 `juice-shop:3000`, `127.0.0.1:3000`, `localhost:3000` 3개 항목만 유지.
 - `metrics.py` — 완결 벤치마크(보조 기능) 전용 JSONL 기록기 (CTF/KoTH 게임 기록은 본 모듈에 넣지 않음).
+- `strix.lock.json` — Strix v1.7.0 공식 release pin(commit, sha256, sandbox 이미지 digest, 고정 CLI/argv, 반환 코드표).
 
 ---
 
-## 3. 원본 확인 (실습 실행 절차 아님)
+## 3. (폐기) 구형 `run.ps1` 원본 확인 — 과거 산출물 기록
 
 ```powershell
 # 1. 허용 타겟 확인 (정확히 3개 유지: juice-shop:3000, 127.0.0.1:3000, localhost:3000)
@@ -36,7 +37,7 @@ Get-Content .\targets.allow
 
 ---
 
-## 4. 구형 반환 코드 설계 (동작 검증 완료 아님)
+## 4. (폐기) 구형 반환 코드 설계 — 과거 산출물 기록
 
 | 코드 | 조건 |
 |---|---|
@@ -52,8 +53,13 @@ Get-Content .\targets.allow
 
 ## 5. 현재 구현 상태 및 주의사항
 
-- **중지된 체크포인트:** 별도 `strix-runtime` worktree의 `run.ps1`·`strix.lock.json`은 원본 미통합·미검증이며 임시 경로 소유권/sidecar 오류 정합 등 잔여가 있습니다. 원본의 추가 인자 미지정 거부도 후속 입력 검증 대상입니다.
-- **실제 실행 미수행:** Docker/Strix 실제 실행, 컨테이너 기동, 스캔 실습은 모두 미실행 상태이며 성공 또는 완료로 표시하지 않습니다.
+- **구형 `run.ps1` 폐기, 신규 컨트롤러로 대체 (통합 완료):**
+  - 구형 PowerShell 입력 검사/dry-run 래퍼(`run.ps1`)는 삭제했습니다. `tools/lab/strix_tool.py` (`python3 tools/lab/practice.py --tool strix <install|doctor|run>`)가 Strix 공식 release pin(v1.7.0, commit `55bc07991aacb1c26a81b43e7ca53148730d2019`, sandbox 1.3.0, `tools/strix/strix.lock.json` 참조) 기반의 설치/진단/실행 컨트롤러로 이를 대체합니다.
+  - 기존 구형 래퍼의 `StrixArgs` 미지정 거부 결함(코드 7), unchecked version/argv는 list-form spawn 고정 argv로 해소했고, 컨테이너 정리와 임시 디렉터리 소유권은 `finally` 블록에서 라벨 기준으로 강제합니다.
+  - 위 1~4절의 `run.ps1`/코드 0~7 설계는 폐기된 과거 산출물 기록이며 현재 실행 진입점이 아닙니다.
+- **실행 환경 및 실제 실행 미수행:**
+  - 사용자 선택에 따라 실제 실행 환경은 **기존 Ubuntu VM**으로 확정되었으나, SSH BatchMode timeout으로 인해 현재 접속 준비 상태입니다. `infra/deploy.py check`로 연결을 재확인하기 전까지 배포를 시도하지 않습니다.
+  - 코드 통합은 완료했으나 실제 VM 환경에서의 Docker/Strix 설치, 실행, 스캔 실습은 모두 **미실행** 상태이며 성공 또는 완료로 표시하지 않습니다.
 - **주소 구분 및 격리:**
   - 컨테이너 대상 주소: `juice-shop:3000` (`targets-net`, `internal: true`)
   - VM 호스트 루프백 주소: `127.0.0.1:3000`, `localhost:3000`

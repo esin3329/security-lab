@@ -1,0 +1,129 @@
+{
+  "controller": "python3 tools/lab/practice.py <install|doctor|run> --tool <rea|artex|strix|pwn>",
+  "admission": "server Ubuntu Linux only (WSL/dev-PC refused); runs ON that VM against its local engine; no SSH deployment, no credential/key collection in this controller",
+  "scope": {
+    "allow_host_ports": ["juice-shop:3000", "127.0.0.1:3000", "localhost:3000"],
+    "executable_host_port": "juice-shop:3000",
+    "target_network": "targets-net (internal:true, existing infra; never modified here)",
+    "time_limit_min": 15,
+    "scan_timeout_sec": 900,
+    "vm_only": "server Ubuntu VM only; every command runs ON that VM against its local Linux/Docker engine. No dev-PC/WSL installs or service starts, no remote engines, no SSH deployment in this controller, no execution until the parent verifies server-VM auth/identity"
+  },
+  "tools": {
+    "rea": {
+      "source_repo": "https://github.com/morluto/rea",
+      "license": "MIT",
+      "release_tag": "rea-agents-6.4.0",
+      "release_commit": "a56f7bb668ab23fec8d33f7af353ac7ed2fe1895",
+      "release_page": "https://github.com/morluto/rea/releases/tag/rea-agents-6.4.0",
+      "npm_package": "rea-agents@6.4.0",
+      "npm_tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.4.0.tgz",
+      "npm_integrity": "sha512-Vj1zWfSlna5bphGoaoI/TcVBuYvze9u+OyPC3Shz8YkBqaCTqB4COnnRoX7XDwMpwI24ZlFEel2yEj0k8LTWEQ==",
+      "npm_shasum": "c919f5c7742ab2abf601db422e4e8fea36d511c2",
+      "node_engines": "^22.19.0 || ^24.11.0 || >=26.0.0",
+      "bins": ["rea", "rea-agents"],
+      "mcp_block": {"command": "<state>/pkg node abs", "args": ["<state>/pkg/scripts/rea.mjs", "mcp"]},
+      "mcp_note": "no npx re-resolve; installed absolute node+script from install receipt",
+      "cli_verified": [
+        "rea analyze-javascript-application <abs-dir-or-asar> --json",
+        "rea analyze <abs-binary> --provider <id> --json",
+        "rea providers --json",
+        "rea capabilities --json",
+        "rea doctor [--provider <id>] --json",
+        "rea --help"
+      ],
+      "cli_exits": {"0": "completed (may include partial evidence/warnings)", "1": "could not complete", "128+N": "signal N"},
+      "native_prereq": "Hopper, Ghidra or IDA provider; offline ELF needs caller pwntools on Linux x64; optional GDB/pwndbg for recorded crashes",
+      "ghidra": {
+        "version": "12.1.4",
+        "zip_url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip",
+        "zip_sha256": "ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db",
+        "jdk": "64-bit full JDK 21+ with javac (operator-provided, fail-closed)",
+        "env": "GHIDRA_INSTALL_DIR=<state>/ghidra/ghidra_12.1.4_PUBLIC"
+      },
+      "proprietary": "hopper/ida are explicit prerequisites (operator-licensed, no installer)"
+    },
+    "artex": {
+      "source_repo": "https://github.com/jiwoochris/artex-ko",
+      "license": "AGPL-3.0",
+      "license_note": "Service/modification/distribution obligations apply; owned-lab use only.",
+      "release_tag": "v0.3.15-ko.1",
+      "release_commit": "1881c2a0963d2b1a509733439cc1b45df563f672",
+      "release_page": "https://github.com/jiwoochris/artex-ko/releases/tag/v0.3.15-ko.1",
+      "image": "ghcr.io/jiwoochris/artex-ko@sha256:cda198c05578bf1ef09cf4992aa5cd370ca76447e7c3b3c8e3cd308c593b3d75 (tag v0.3.15-ko.1 recorded as provenance metadata only)",
+      "image_digests": {
+        "index": "sha256:cda198c05578bf1ef09cf4992aa5cd370ca76447e7c3b3c8e3cd308c593b3d75",
+        "amd64": {"manifest": "sha256:0443b506ddc9a5aa4172e3f595fbeef157ecdbf66a4ec0f3a2803d23a3d6dca0", "config": "sha256:6e3e9bf2295a3f4de174a8c0dadc076bc4a0f2b64ecc639638bad4ec20068200"},
+        "arm64": {"manifest": "sha256:780a103dba4bc24398e6819cdd7c89ffb3fb07635cd6c7227768ab6a4aca312e", "config": "sha256:176c1197b35d83b1a73858b27312156c2c978e6a6b2de82e4ee7748c16fdcc12"}
+      },
+      "image_arches": ["amd64", "arm64"],
+      "linux_amd64_zip": "https://github.com/jiwoochris/artex-ko/releases/download/v0.3.15-ko.1/artex-0.3.15-ko.1-linux-amd64.zip",
+      "linux_amd64_sha256": "4881082b7a722b42758f8580ee73f45b5ba06907243e20aaa339f32dfda19cfe",
+      "linux_arm64_zip_sha256": "1d7e539207a53a0c94cd23ad4f0059cc9e3753c0c65f65c0dabbf94b6ee7eebf",
+      "postgres_image": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea (tag postgres:16-alpine recorded as provenance metadata only)",
+      "postgres_digests": {
+        "index": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+        "amd64": {"manifest": "sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551", "config": "sha256:81bd698b4594e751a3269e4dcd3e03a4a0ec0daf7b72e7aa1abd43cce9887542"},
+        "arm64": {"manifest": "sha256:2c942175a1255a9abe0366e48c1b401d9f50f835b04dfea13f111609b5530df7", "config": "sha256:ef738a34a8651d11b2bace81c55c7e2187f786b484add6c83070884340074368"}
+      },
+      "postgres_digest": "exact-match enforced (see postgres_digests)",
+      "ui_bind": "127.0.0.1:8787",
+      "proxy_bind": "127.0.0.1:8788",
+      "setup_path": "/setup",
+      "setup_token_log_hint": "docker compose logs artex | grep setup token",
+      "admin_env": ["ARTEX_SETUP_TOKEN", "ARTEX_ADMIN_PASSWORD (8+ chars)"],
+      "llm_env": ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "ARTEX_LLM_PROVIDER", "ARTEX_LLM_MODEL", "ARTEX_LLM_BASE_URL", "ARTEX_LLM_PROXY"],
+      "config_override": "config.json or ARTEX_PG_DSN",
+      "task_api": "verified: auth/status|init|login(Bearer), health, llm, llm/test, POST /api/tasks{description,goal,timeout_seconds,intercept_rules[]}(201 {id}), POST /api/tasks/{id}/scope{kind:keyword}, GET /api/tasks/{id}, POST /api/tasks/{id}/control{action:pause}; update endpoints never called",
+      "intercept_rule": {"enabled": true, "action": "allow", "kind": "exact_domain", "pattern": "juice-shop"},
+      "networks": "postgres on internal dblink only; artex on dblink + discovered internal targets engine net; no hardcoded names; extra attachments refused",
+      "lifecycle": "default persistent-explicit; --stop-services pauses task + compose down (volumes/state kept); failures pause task + detach owned attachment, never state DB"
+    },
+    "strix": {
+      "source_repo": "https://github.com/usestrix/strix",
+      "license": "Apache-2.0",
+      "release_tag": "v1.7.0",
+      "release_commit": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+      "release_page": "https://github.com/usestrix/strix/releases/tag/v1.7.0",
+      "linux_x86_64_asset": "https://github.com/usestrix/strix/releases/download/v1.7.0/strix-1.7.0-linux-x86_64.tar.gz",
+      "linux_x86_64_sha256": "b8cd7e84d63cbeff6726301a9e08fddedf40fc6a4edcdb4edda8a853b3312de6",
+      "install_script": "https://strix.ai/install",
+      "install_pinned_form": "VERSION=1.7.0 with the official installer (live script, not immutable; asset download preferred)",
+      "sandbox_image": "ghcr.io/usestrix/strix-sandbox:1.3.0",
+      "sandbox_digests": {
+        "index": "sha256:f6906c3114e504fd1a218fcf028d7a0e46851118403a438b63956de6ea7c4331",
+        "amd64": {"manifest": "sha256:e5e5d9927f15ca95ad49804ef7d22439771cd27378f400da6edd47556799baff", "config": "sha256:bc4947dc64c97f58be4fa0200292346917543c5ed4b1c6a914fe9d6c40786aa0"},
+        "arm64": {"manifest": "sha256:38f9eea087079763312877eaf59047c3bd61ece67ab3479c1da63dc48fe50587", "config": "sha256:e9da9c4c3a03d6ddb5a536df74b46e8d3ebf24467ac47d3af86270135ddfcebc"}
+      },
+      "sandbox_image_source": "official installer STRIX_IMAGE; exact digest-match enforced, no trust-on-first-use",
+      "sandbox_network": "targets-net (engine name discovered from approved container endpoint)",
+      "fixed_cli": ["-n", "--target", "<approved absolute URL>", "--scan-mode", "quick"],
+      "cli_reference": "https://docs.strix.ai/usage/cli",
+      "cli_exits": {"0": "headless clean", "1": "fatal", "2": "findings (launcher maps to 12)"},
+      "llm_env": ["STRIX_LLM", "LLM_API_KEY"],
+      "metrics_writer": "python3 tools/strix/metrics.py --record <full JSON> --output <JSONL>; 0 append, 2 reject"
+    },
+    "pwn": {
+      "recipe": "pwn/Dockerfile in this checkout (read-only use; never modified here)",
+      "base_image": "ubuntu:24.04",
+      "pwndbg_commit": "55596aa676a2756efb8d67034f31675170eabe48",
+      "pwndbg_release": "2026.09.15",
+      "pwntools": "pwntools==4.14.0",
+      "build": ["docker", "build", "-t", "pwn-lab:fixed", "-f", "pwn/Dockerfile", "pwn/"],
+      "image_tag": "pwn-lab:fixed",
+      "checks": [
+        ["docker", "run", "--rm", "--network", "none", "--cap-drop", "ALL", "pwn-lab:fixed", "gdb", "--version"],
+        ["docker", "run", "--rm", "--network", "none", "--cap-drop", "ALL", "pwn-lab:fixed", "python3", "-m", "pip", "show", "pwntools"],
+        ["docker", "run", "--rm", "--network", "none", "--cap-drop", "ALL", "pwn-lab:fixed", "test", "-d", "/opt/pwndbg"]
+      ],
+      "run_contract": "owned ephemeral container (pwn-<uuid>), network none, cap-drop ALL, single artifact :ro at /pwn/target, gdb artifact load + pwntools + pwndbg entrypoints, removal verified, artifact path never stored",
+      "interactive": null,
+      "interactive_note": "no interactive exec in this controller; operator uses the recipe command separately"
+    },
+    "juice": {
+      "image": "bkimminich/juice-shop:v17.1.1",
+      "container": "juice-shop",
+      "network": "targets-net"
+    }
+  }
+}

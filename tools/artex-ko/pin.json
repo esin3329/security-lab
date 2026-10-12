@@ -1,0 +1,50 @@
+{
+  "tool": "artex-ko",
+  "display": "ARTEX 한국어판 (Go backend + Next.js, PostgreSQL)",
+  "source_repo": "https://github.com/jiwoochris/artex-ko",
+  "license": "AGPL-3.0",
+  "license_note": "Service/modification/distribution obligations apply; owned-lab use only.",
+  "release_tag": "v0.3.15-ko.1",
+  "release_page": "https://github.com/jiwoochris/artex-ko/releases/tag/v0.3.15-ko.1",
+  "release_commit": "1881c2a0963d2b1a509733439cc1b45df563f672",
+  "image": "ghcr.io/jiwoochris/artex-ko@sha256:cda198c05578bf1ef09cf4992aa5cd370ca76447e7c3b3c8e3cd308c593b3d75",
+  "image_digests": {
+    "index": "sha256:cda198c05578bf1ef09cf4992aa5cd370ca76447e7c3b3c8e3cd308c593b3d75",
+    "amd64": {"manifest": "sha256:0443b506ddc9a5aa4172e3f595fbeef157ecdbf66a4ec0f3a2803d23a3d6dca0", "config": "sha256:6e3e9bf2295a3f4de174a8c0dadc076bc4a0f2b64ecc639638bad4ec20068200"},
+    "arm64": {"manifest": "sha256:780a103dba4bc24398e6819cdd7c89ffb3fb07635cd6c7227768ab6a4aca312e", "config": "sha256:176c1197b35d83b1a73858b27312156c2c978e6a6b2de82e4ee7748c16fdcc12"}
+  },
+  "image_digest_note": "measured from GHCR token+manifest metadata 2026-10-12; runtime enforces config+index exact-match per arch",
+  "postgres_image": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+  "postgres_digests": {
+    "index": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+    "amd64": {"config": "sha256:81bd698b4594e751a3269e4dcd3e03a4a0ec0daf7b72e7aa1abd43cce9887542"},
+    "arm64": {"config": "sha256:ef738a34a8651d11b2bace81c55c7e2187f786b484add6c83070884340074368"}
+  },
+  "linux_amd64_zip": "https://github.com/jiwoochris/artex-ko/releases/download/v0.3.15-ko.1/artex-0.3.15-ko.1-linux-amd64.zip",
+  "linux_amd64_zip_sha256": "4881082b7a722b42758f8580ee73f45b5ba06907243e20aaa339f32dfda19cfe",
+  "pinned_compose": "tools/artex-ko/docker-compose.pinned.yml",
+  "compose_notes": "digest refs (no tags); postgres+artex ONLY on internal dblink (no default/external egress); artex joins discovered internal targets engine net at runtime (no hardcoded name); loopback ports only; artex read-only rootfs + tmpfs + no-new-privileges; no skills shadow bind; no docker socket",
+  "networks": "ALL attached networks internal:true enforced (postgres:1, artex:2); extra attachments refused",
+  "ui": "http://127.0.0.1:8787",
+  "admin_env": ["ARTEX_SETUP_TOKEN (generated, never logged)", "ARTEX_ADMIN_PASSWORD (generated, 8+ chars)"],
+  "admin_note": "both always set at install, so upstream console setup-token fallback never triggers",
+  "llm_env": ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "ARTEX_LLM_PROVIDER", "ARTEX_LLM_MODEL", "ARTEX_LLM_BASE_URL", "ARTEX_LLM_PROXY"],
+  "llm_gate": "explicit provider+model+approved-local-gateway BASE_URL+credential plus POST /api/llm/test ok:true; keys-alone refused; TCP-open alone never counts; direct arbitrary internet refused",
+  "llm_gateway_policy": "BASE_URL host must be loopback/private-IP/localhost/single-label/*.local/*.internal (no DNS tricks); server-side llm/test is the authority",
+  "api_verified": {
+    "auth_status": "GET /api/auth/status -> {initialized, setup_token_required}",
+    "auth_init": "POST /api/auth/init {password, setup_token}",
+    "auth_login": "POST /api/auth/login {username: ARTEX, password} -> {token}; Bearer auth",
+    "health": "GET /api/health -> {ok, service, version}",
+    "llm": "GET /api/llm -> {configured, provider, model, key_set}",
+    "llm_test": "POST /api/llm/test {provider, model, base_url, api_key} -> {ok, latency_ms, model}",
+    "create_task": "POST /api/tasks {description, goal, timeout_seconds:900, intercept_rules:[{enabled,allow,exact_domain:juice-shop}]} -> 201 {id} (deny-by-default, no post-create race)",
+    "scope_add": "POST /api/tasks/{id}/scope {kind: keyword, value, reason}",
+    "get_task": "GET /api/tasks/{id} -> id match",
+    "task_stop": "POST /api/tasks/{id}/control {action:pause} (only verified stop; no task cancel exists)"
+  },
+  "executable_target": "juice-shop:3000 only",
+  "lifecycle": "default persistent-explicit; --stop-services pauses task + compose down (volumes/state kept); failures pause task + detach owned attachment, never state DB",
+  "update_policy": "/api/update/* is never called; image is immutable digest-pinned",
+  "task_api": "authenticated scoped task creation implemented against the verified routes above"
+}

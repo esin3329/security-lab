@@ -17,11 +17,17 @@
 
 ## 2. 현재 상태 및 사용 경계
 
-- **미설치 및 미연동:** 현재 로컬 환경에 설치되어 있지 않으며(`PATH` 내 미존재), 프로젝트 래퍼나 설정과의 연동은 구현되지 않았습니다.
-- **라이선스 요구사항:** AGPL-3.0의 수정·배포·서비스 제공 관련 의무를 도입 전에 확인합니다. 소유한 환경 또는 서면 허가된 로컬 lab으로 제한하는 것은 본 프로젝트의 사용 정책입니다.
+- **설치/진단/실행 컨트롤러 통합 완료:**
+  - `tools/lab/artex_tool.py` (`python3 tools/lab/practice.py --tool artex <install|doctor|run>`)가 ARTEX-KO 공식 GHCR 이미지(digest 고정), PostgreSQL(digest 고정), 격리망(`internal: true` 전 구간 강제), 로컬 관리자/LLM 설정 기반의 설치·기동·scoped task 생성 컨트롤러를 구현한다. 세부 핀은 `tools/artex-ko/pin.json`과 `docker-compose.pinned.yml` 참조.
+  - 관리자 설정, DB 패스워드, LLM API 키는 Git 밖의 operator private state 및 환경 변수에만 보관하며 기본 모델/키를 하드코딩하지 않습니다.
+- **라이선스 요구사항:**
+  - AGPL-3.0의 수정·배포·서비스 제공 관련 의무를 확인합니다. 소유한 환경 또는 서면 허가된 로컬 lab으로 제한하는 것은 본 프로젝트의 사용 정책입니다.
+- **실행 환경 및 미설치 상태:**
+  - 사용자 선택에 따라 실행 환경은 **기존 Ubuntu VM**으로 확정되었으나, SSH BatchMode timeout으로 인해 현재 접속 준비 상태입니다. `infra/deploy.py`로 코드 배포 전까지 VM에 ARTEX-KO를 설치하지 않습니다.
+  - 코드 통합은 완료했으나 실제 VM 환경에서 ARTEX-KO 컨테이너 기동, 공격 경로 탐색 실습은 **미실행** 상태입니다.
 - **외부 사이트 공격 절대 금지:**
   - TryHackMe KoTH 등 공용 실습 사이트를 대상으로 한 Strix/ARTEX 자동화 공격은 엄격히 금지됩니다 (TryHackMe Rule 7: 자동 해킹 스크립트 금지 규정 준수).
-  - 연동 전에 실제 ARTEX 실행에도 승인 대상 경계를 강제·검증해야 합니다. 현재 ARTEX 래퍼가 없으므로 Strix의 allowlist가 ARTEX까지 자동으로 차단한다고 주장하지 않습니다.
+  - 허용 목록 3개(`juice-shop:3000`, `127.0.0.1:3000`, `localhost:3000`)에 외부 사이트를 추가하지 않습니다.
 
 ---
 

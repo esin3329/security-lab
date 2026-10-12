@@ -97,7 +97,7 @@
 - 사이트 자체·공용 infrastructure·다른 플레이어 공격은 금지다. 사이트 제약이 로컬 실습
   규칙과 다르면 사이트 제약을 우선한다.
 
-## 6. 공식 출처와 현재 상태 요약
+## 6. 공식 출처 및 실행 환경 준비 상태
 
 - CTF 구성·single-user 제한·flag/score server 근거:
   https://pwning.owasp-juice.shop/companion-guide/latest/part4/ctf.html
@@ -105,6 +105,13 @@
   https://raw.githubusercontent.com/juice-shop/juice-shop/v17.1.1/config/ctf.yml
 - KoTH 규칙 참고:
   https://help.tryhackme.com/en/articles/6498315-king-of-the-hill-overview
-- 현재 미구현·미실행: CTF mode 구성, per-event CTF_KEY, scoreboard/judge, hill VM,
-  외부 판정기, tick/round 고정 설정, snapshot reset, 모든 도구 설치·실행·flag 제출.
-  문서 작업에서 VM/Docker/Strix/ARTEX/REA/pwn 실행·tests/build/lint는 수행하지 않았다.
+- **실행 환경 및 연결 상태 (확인된 사실):**
+  - 사용자 선택에 따라 실제 Docker/도구/게임 실행 환경은 **기존 Ubuntu VM**으로 결정되었습니다.
+  - Windows SSH config에서 기존 VM 후보를 확인했으나, 비대화식 BatchMode 접속 시 timeout이 발생하여 현재 연결 준비 및 확인 대기 중입니다.
+  - SSH 연결 및 인증 확정 전까지 실제 대상 실행, 도구 설치, 스캔, 플래그 제출을 수행하지 않으며, 실제 VM 설치·flag·게임 성공을 주장하지 않습니다.
+- **Secret 및 State 격리 정책:**
+  - `CTF_KEY`, event ID, SSH credentials, KoTH judge state(sqlite/json)는 Git 밖의 operator 전용 runtime 디렉터리에 `0700`/`0600` 권한으로 보관하며, Git 저장소나 stdout에 노출하지 않습니다.
+- **현재 구현 및 실행 상태:**
+  - `practice/ctf-runtime`, `practice/koth-runtime`, `practice/tool-integration`의 컨트롤러 코드(`tools/ctf/`, `tools/koth/`, `tools/lab/`)와 `infra/deploy.py` 배포 경로를 코디네이터가 `main`에 통합했습니다. 컴파일·`--help`·기존 단위 테스트·`deploy.py plan`은 통과했습니다.
+  - 현재 미구현·미실행: 실제 VM 내 CTF mode 기동, per-event CTF_KEY 주입, scoreboard/judge 운영, hill VM 기동, 외부 판정기 tick 실행, snapshot reset, 모든 도구 설치·실행·flag 제출, `infra/deploy.py`의 실제 `--target` SSH `check`/`deploy`.
+  - 본 문서 정합 작업에서 VM/Docker/Strix/ARTEX/REA/pwn의 실제 실행과 git 커밋 외의 범위(새 기능 구현)는 수행하지 않았습니다.

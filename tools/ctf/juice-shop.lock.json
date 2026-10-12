@@ -1,0 +1,587 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/juice-shop/juice-shop",
+  "tag": "v17.1.1",
+  "annotated_tag": "2e229b50706ffb460e1a4d7a92549361a2ee5378",
+  "commit": "39b46860612990ae18d499a20472172839fe8c77",
+  "image": "bkimminich/juice-shop:v17.1.1",
+  "tag_api": "https://api.github.com/repos/juice-shop/juice-shop/git/tags/2e229b50706ffb460e1a4d7a92549361a2ee5378",
+  "guide": "https://pwning.owasp-juice.shop/companion-guide/latest/part4/ctf.html",
+  "source_git_blobs": {
+    "lib/utils.ts": "29f4ca0a24f89982cdd6e42859ac01adddee913c",
+    "lib/challengeUtils.ts": "0367f5e32fa04f44d7861249436786361347e0df",
+    "routes/appVersion.ts": "efdec6d67ab9bb73e91abe7ea24efe06f4b20968",
+    "routes/appConfiguration.ts": "f4af7b1818ba3d72218a06dff0e1ced5f1311687",
+    "routes/repeatNotification.ts": "8ae89d05acd0a6e970074476e433820d1491c82b",
+    "config/ctf.yml": "a1c428df32e203de7679c8cbba48d41090141eef",
+    "data/static/challenges.yml": "f2d8192538e0af884fb412fe6e652e916fdfd035",
+    "package.json": "c72537a6c3318d20489352d6dfe98282379d6676",
+    "server.ts": "c2689cc8d39c2c377f827979e7bbf4732aa657e2",
+    "models/index.ts": "d36cf0ee625edbf224ba5919532961624eafefd0",
+    "data/staticData.ts": "203a8c524ec839ecbb9ecaaf835c021e5e15b946",
+    "routes/verify.ts": "a94d538c39c4273b01b8ecf837718eabd4b3c3d6",
+    "frontend/src/app/score-board/score-board.component.html": "189b19237b94524da7fb176fc9da04decbbb7cf3",
+    "frontend/src/app/challenge-solved-notification/challenge-solved-notification.component.html": "221d1133fc5421637e8a34c0a7430016d38bf8a0",
+    ".github/workflows/release.yml": "1f955ea5997565d6cf35e489bed7e102e27e8af8",
+    "Dockerfile": "f1d3a8e27c42b259685a3c04fd8aa7fade527afe"
+  },
+  "algorithm": {
+    "name": "HMAC-SHA1",
+    "key": "nonempty CTF_KEY environment text",
+    "message": "exact Challenges.name",
+    "encoding": "UTF-8",
+    "flag": "40 lowercase hexadecimal characters"
+  },
+  "api": {
+    "catalog": "/api/Challenges",
+    "configuration": "/rest/admin/application-configuration",
+    "version": "/rest/admin/application-version",
+    "ctf_version_response": {
+      "version": ""
+    }
+  },
+  "score_board": {
+    "challenge_key": "scoreBoardChallenge",
+    "challenge_name": "Score Board",
+    "ui": "/#/score-board",
+    "validator_resource": "/assets/public/images/padding/1px.png",
+    "notification": "Socket.IO challenge solved; repeated through /rest/repeat-notification"
+  },
+  "challenges": [
+    {
+      "name": "API-only XSS",
+      "difficulty": 3,
+      "key": "restfulXssChallenge"
+    },
+    {
+      "name": "Access Log",
+      "difficulty": 4,
+      "key": "accessLogDisclosureChallenge"
+    },
+    {
+      "name": "Admin Registration",
+      "difficulty": 3,
+      "key": "registerAdminChallenge"
+    },
+    {
+      "name": "Admin Section",
+      "difficulty": 2,
+      "key": "adminSectionChallenge"
+    },
+    {
+      "name": "Arbitrary File Write",
+      "difficulty": 6,
+      "key": "fileWriteChallenge"
+    },
+    {
+      "name": "Bjoern's Favorite Pet",
+      "difficulty": 3,
+      "key": "resetPasswordBjoernOwaspChallenge"
+    },
+    {
+      "name": "Blockchain Hype",
+      "difficulty": 5,
+      "key": "tokenSaleChallenge"
+    },
+    {
+      "name": "NFT Takeover",
+      "difficulty": 2,
+      "key": "nftUnlockChallenge"
+    },
+    {
+      "name": "Mint the Honey Pot",
+      "difficulty": 3,
+      "key": "nftMintChallenge"
+    },
+    {
+      "name": "Wallet Depletion",
+      "difficulty": 6,
+      "key": "web3WalletChallenge"
+    },
+    {
+      "name": "Web3 Sandbox",
+      "difficulty": 1,
+      "key": "web3SandboxChallenge"
+    },
+    {
+      "name": "Blocked RCE DoS",
+      "difficulty": 5,
+      "key": "rceChallenge"
+    },
+    {
+      "name": "CAPTCHA Bypass",
+      "difficulty": 3,
+      "key": "captchaBypassChallenge"
+    },
+    {
+      "name": "Change Bender's Password",
+      "difficulty": 5,
+      "key": "changePasswordBenderChallenge"
+    },
+    {
+      "name": "Christmas Special",
+      "difficulty": 4,
+      "key": "christmasSpecialChallenge"
+    },
+    {
+      "name": "CSP Bypass",
+      "difficulty": 4,
+      "key": "usernameXssChallenge"
+    },
+    {
+      "name": "Client-side XSS Protection",
+      "difficulty": 3,
+      "key": "persistedXssUserChallenge"
+    },
+    {
+      "name": "Confidential Document",
+      "difficulty": 1,
+      "key": "directoryListingChallenge"
+    },
+    {
+      "name": "DOM XSS",
+      "difficulty": 1,
+      "key": "localXssChallenge"
+    },
+    {
+      "name": "Database Schema",
+      "difficulty": 3,
+      "key": "dbSchemaChallenge"
+    },
+    {
+      "name": "Deprecated Interface",
+      "difficulty": 2,
+      "key": "deprecatedInterfaceChallenge"
+    },
+    {
+      "name": "Easter Egg",
+      "difficulty": 4,
+      "key": "easterEggLevelOneChallenge"
+    },
+    {
+      "name": "Email Leak",
+      "difficulty": 5,
+      "key": "emailLeakChallenge"
+    },
+    {
+      "name": "Empty User Registration",
+      "difficulty": 2,
+      "key": "emptyUserRegistration"
+    },
+    {
+      "name": "Ephemeral Accountant",
+      "difficulty": 4,
+      "key": "ephemeralAccountantChallenge"
+    },
+    {
+      "name": "Error Handling",
+      "difficulty": 1,
+      "key": "errorHandlingChallenge"
+    },
+    {
+      "name": "Expired Coupon",
+      "difficulty": 4,
+      "key": "manipulateClockChallenge"
+    },
+    {
+      "name": "Extra Language",
+      "difficulty": 5,
+      "key": "extraLanguageChallenge"
+    },
+    {
+      "name": "Five-Star Feedback",
+      "difficulty": 2,
+      "key": "feedbackChallenge"
+    },
+    {
+      "name": "Forged Coupon",
+      "difficulty": 6,
+      "key": "forgedCouponChallenge"
+    },
+    {
+      "name": "Forged Feedback",
+      "difficulty": 3,
+      "key": "forgedFeedbackChallenge"
+    },
+    {
+      "name": "Forged Review",
+      "difficulty": 3,
+      "key": "forgedReviewChallenge"
+    },
+    {
+      "name": "Forged Signed JWT",
+      "difficulty": 6,
+      "key": "jwtForgedChallenge"
+    },
+    {
+      "name": "Forgotten Developer Backup",
+      "difficulty": 4,
+      "key": "forgottenDevBackupChallenge"
+    },
+    {
+      "name": "Forgotten Sales Backup",
+      "difficulty": 4,
+      "key": "forgottenBackupChallenge"
+    },
+    {
+      "name": "Frontend Typosquatting",
+      "difficulty": 5,
+      "key": "typosquattingAngularChallenge"
+    },
+    {
+      "name": "GDPR Data Erasure",
+      "difficulty": 3,
+      "key": "ghostLoginChallenge"
+    },
+    {
+      "name": "GDPR Data Theft",
+      "difficulty": 4,
+      "key": "dataExportChallenge"
+    },
+    {
+      "name": "HTTP-Header XSS",
+      "difficulty": 4,
+      "key": "httpHeaderXssChallenge"
+    },
+    {
+      "name": "Imaginary Challenge",
+      "difficulty": 6,
+      "key": "continueCodeChallenge"
+    },
+    {
+      "name": "Leaked Access Logs",
+      "difficulty": 5,
+      "key": "dlpPasswordSprayingChallenge"
+    },
+    {
+      "name": "Leaked Unsafe Product",
+      "difficulty": 4,
+      "key": "dlpPastebinDataLeakChallenge"
+    },
+    {
+      "name": "Legacy Typosquatting",
+      "difficulty": 4,
+      "key": "typosquattingNpmChallenge"
+    },
+    {
+      "name": "Login Admin",
+      "difficulty": 2,
+      "key": "loginAdminChallenge"
+    },
+    {
+      "name": "Login Amy",
+      "difficulty": 3,
+      "key": "loginAmyChallenge"
+    },
+    {
+      "name": "Login Bender",
+      "difficulty": 3,
+      "key": "loginBenderChallenge"
+    },
+    {
+      "name": "Login Bjoern",
+      "difficulty": 4,
+      "key": "oauthUserPasswordChallenge"
+    },
+    {
+      "name": "Login Jim",
+      "difficulty": 3,
+      "key": "loginJimChallenge"
+    },
+    {
+      "name": "Login MC SafeSearch",
+      "difficulty": 2,
+      "key": "loginRapperChallenge"
+    },
+    {
+      "name": "Login Support Team",
+      "difficulty": 6,
+      "key": "loginSupportChallenge"
+    },
+    {
+      "name": "Manipulate Basket",
+      "difficulty": 3,
+      "key": "basketManipulateChallenge"
+    },
+    {
+      "name": "Misplaced Signature File",
+      "difficulty": 4,
+      "key": "misplacedSignatureFileChallenge"
+    },
+    {
+      "name": "Multiple Likes",
+      "difficulty": 6,
+      "key": "timingAttackChallenge"
+    },
+    {
+      "name": "Nested Easter Egg",
+      "difficulty": 4,
+      "key": "easterEggLevelTwoChallenge"
+    },
+    {
+      "name": "NoSQL DoS",
+      "difficulty": 4,
+      "key": "noSqlCommandChallenge"
+    },
+    {
+      "name": "NoSQL Exfiltration",
+      "difficulty": 5,
+      "key": "noSqlOrdersChallenge"
+    },
+    {
+      "name": "NoSQL Manipulation",
+      "difficulty": 4,
+      "key": "noSqlReviewsChallenge"
+    },
+    {
+      "name": "Outdated Allowlist",
+      "difficulty": 1,
+      "key": "redirectCryptoCurrencyChallenge"
+    },
+    {
+      "name": "Password Strength",
+      "difficulty": 2,
+      "key": "weakPasswordChallenge"
+    },
+    {
+      "name": "Payback Time",
+      "difficulty": 3,
+      "key": "negativeOrderChallenge"
+    },
+    {
+      "name": "Premium Paywall",
+      "difficulty": 6,
+      "key": "premiumPaywallChallenge"
+    },
+    {
+      "name": "Privacy Policy",
+      "difficulty": 1,
+      "key": "privacyPolicyChallenge"
+    },
+    {
+      "name": "Privacy Policy Inspection",
+      "difficulty": 3,
+      "key": "privacyPolicyProofChallenge"
+    },
+    {
+      "name": "Product Tampering",
+      "difficulty": 3,
+      "key": "changeProductChallenge"
+    },
+    {
+      "name": "Reflected XSS",
+      "difficulty": 2,
+      "key": "reflectedXssChallenge"
+    },
+    {
+      "name": "Repetitive Registration",
+      "difficulty": 1,
+      "key": "passwordRepeatChallenge"
+    },
+    {
+      "name": "Reset Bender's Password",
+      "difficulty": 4,
+      "key": "resetPasswordBenderChallenge"
+    },
+    {
+      "name": "Reset Bjoern's Password",
+      "difficulty": 5,
+      "key": "resetPasswordBjoernChallenge"
+    },
+    {
+      "name": "Reset Jim's Password",
+      "difficulty": 3,
+      "key": "resetPasswordJimChallenge"
+    },
+    {
+      "name": "Reset Morty's Password",
+      "difficulty": 5,
+      "key": "resetPasswordMortyChallenge"
+    },
+    {
+      "name": "Retrieve Blueprint",
+      "difficulty": 5,
+      "key": "retrieveBlueprintChallenge"
+    },
+    {
+      "name": "SSRF",
+      "difficulty": 6,
+      "key": "ssrfChallenge"
+    },
+    {
+      "name": "SSTi",
+      "difficulty": 6,
+      "key": "sstiChallenge"
+    },
+    {
+      "name": "Score Board",
+      "difficulty": 1,
+      "key": "scoreBoardChallenge"
+    },
+    {
+      "name": "Security Policy",
+      "difficulty": 2,
+      "key": "securityPolicyChallenge"
+    },
+    {
+      "name": "Server-side XSS Protection",
+      "difficulty": 4,
+      "key": "persistedXssFeedbackChallenge"
+    },
+    {
+      "name": "Steganography",
+      "difficulty": 4,
+      "key": "hiddenImageChallenge"
+    },
+    {
+      "name": "Successful RCE DoS",
+      "difficulty": 6,
+      "key": "rceOccupyChallenge"
+    },
+    {
+      "name": "Supply Chain Attack",
+      "difficulty": 5,
+      "key": "supplyChainAttackChallenge"
+    },
+    {
+      "name": "Two Factor Authentication",
+      "difficulty": 5,
+      "key": "twoFactorAuthUnsafeSecretStorageChallenge"
+    },
+    {
+      "name": "Unsigned JWT",
+      "difficulty": 5,
+      "key": "jwtUnsignedChallenge"
+    },
+    {
+      "name": "Upload Size",
+      "difficulty": 3,
+      "key": "uploadSizeChallenge"
+    },
+    {
+      "name": "Upload Type",
+      "difficulty": 3,
+      "key": "uploadTypeChallenge"
+    },
+    {
+      "name": "User Credentials",
+      "difficulty": 4,
+      "key": "unionSqlInjectionChallenge"
+    },
+    {
+      "name": "Video XSS",
+      "difficulty": 6,
+      "key": "videoXssChallenge"
+    },
+    {
+      "name": "View Basket",
+      "difficulty": 2,
+      "key": "basketAccessChallenge"
+    },
+    {
+      "name": "Vulnerable Library",
+      "difficulty": 4,
+      "key": "knownVulnerableComponentChallenge"
+    },
+    {
+      "name": "Weird Crypto",
+      "difficulty": 2,
+      "key": "weirdCryptoChallenge"
+    },
+    {
+      "name": "Allowlist Bypass",
+      "difficulty": 4,
+      "key": "redirectChallenge"
+    },
+    {
+      "name": "XXE Data Access",
+      "difficulty": 3,
+      "key": "xxeFileDisclosureChallenge"
+    },
+    {
+      "name": "XXE DoS",
+      "difficulty": 5,
+      "key": "xxeDosChallenge"
+    },
+    {
+      "name": "Zero Stars",
+      "difficulty": 1,
+      "key": "zeroStarsChallenge"
+    },
+    {
+      "name": "Missing Encoding",
+      "difficulty": 1,
+      "key": "missingEncodingChallenge"
+    },
+    {
+      "name": "Cross-Site Imaging",
+      "difficulty": 5,
+      "key": "svgInjectionChallenge"
+    },
+    {
+      "name": "Exposed Metrics",
+      "difficulty": 1,
+      "key": "exposedMetricsChallenge"
+    },
+    {
+      "name": "Deluxe Fraud",
+      "difficulty": 3,
+      "key": "freeDeluxeChallenge"
+    },
+    {
+      "name": "'CSRF' # FIXME No e2e test automation! No longer works in Chrome >=80 and Firefox >=100 or other latest browsers!",
+      "difficulty": 3,
+      "key": "csrfChallenge"
+    },
+    {
+      "name": "Bonus Payload",
+      "difficulty": 1,
+      "key": "xssBonusChallenge"
+    },
+    {
+      "name": "Reset Uvogin's Password",
+      "difficulty": 4,
+      "key": "resetPasswordUvoginChallenge"
+    },
+    {
+      "name": "Meta Geo Stalking",
+      "difficulty": 2,
+      "key": "geoStalkingMetaChallenge"
+    },
+    {
+      "name": "Visual Geo Stalking",
+      "difficulty": 2,
+      "key": "geoStalkingVisualChallenge"
+    },
+    {
+      "name": "Kill Chatbot",
+      "difficulty": 5,
+      "key": "killChatbotChallenge"
+    },
+    {
+      "name": "Poison Null Byte",
+      "difficulty": 4,
+      "key": "nullByteChallenge"
+    },
+    {
+      "name": "Bully Chatbot",
+      "difficulty": 1,
+      "key": "bullyChatbotChallenge"
+    },
+    {
+      "name": "Local File Read",
+      "difficulty": 5,
+      "key": "lfrChallenge"
+    },
+    {
+      "name": "Mass Dispel",
+      "difficulty": 1,
+      "key": "closeNotificationsChallenge"
+    },
+    {
+      "name": "Security Advisory",
+      "difficulty": 3,
+      "key": "csafChallenge"
+    }
+  ]
+}

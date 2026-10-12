@@ -17,9 +17,12 @@
 
 ## 2. 현재 상태 및 구현 경계
 
-- **미설치 및 미연동:** 현재 로컬 환경에 REA가 설치되어 있지 않으며(`PATH` 내 미존재), 저장소와의 직접적인 래퍼/스크립트 연동은 구현되지 않았습니다.
-- **후속 구성 과제:** 고정 버전 핀, 지원 호스트 OS, Python/Node 툴체인 및 MCP 서버 구동 요건은 후속 승인 작업에서 다룹니다.
-- **실행 원칙:** 사용자의 격리된 로컬 환경에서만 동작시키며, 외부 임의 시스템에 대한 역공학에는 사용하지 않습니다.
+- **설치/진단/실행 컨트롤러 통합 완료:**
+  - `tools/lab/rea_tool.py` (`python3 tools/lab/practice.py --tool rea <install|doctor|run>`)가 REA 공식 release pin(`rea-agents@6.4.0`, commit `a56f7bb668ab23fec8d33f7af353ac7ed2fe1895`, npm tarball sha512/shasum, 선택적 Ghidra 12.1.4 sha256) 기반으로 설치·sha 검증·MCP 실행을 구현한다. 세부 핀은 `tools/rea/pin.json` 참조.
+  - REA는 로컬 허가 아티팩트의 디스어셈블리 및 MCP 분석만 지원하며, 외부 임의 시스템에 대한 역공학에는 사용하지 않습니다.
+- **실행 환경 및 미설치 상태:**
+  - 사용자 선택에 따라 실행 환경은 **기존 Ubuntu VM**으로 확정되었으나, SSH BatchMode timeout으로 인해 연결 준비 상태입니다. `infra/deploy.py`로 코드 배포 전까지 VM에 REA를 설치하지 않습니다.
+  - 코드 통합은 완료했으나 실제 VM 환경에 REA는 **미설치** 상태이며, 설치·진단·실행 명령을 실제로 수행하지 않았습니다.
 
 ---
 

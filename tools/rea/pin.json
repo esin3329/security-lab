@@ -1,0 +1,37 @@
+{
+  "tool": "rea",
+  "display": "Reverse Engineer Anything (MCP + CLI)",
+  "source_repo": "https://github.com/morluto/rea",
+  "license": "MIT",
+  "release_tag": "rea-agents-6.4.0",
+  "release_page": "https://github.com/morluto/rea/releases/tag/rea-agents-6.4.0",
+  "release_commit": "a56f7bb668ab23fec8d33f7af353ac7ed2fe1895",
+  "npm_package": "rea-agents@6.4.0",
+  "npm_tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.4.0.tgz",
+  "npm_integrity": "sha512-Vj1zWfSlna5bphGoaoI/TcVBuYvze9u+OyPC3Shz8YkBqaCTqB4COnnRoX7XDwMpwI24ZlFEel2yEj0k8LTWEQ==",
+  "npm_shasum": "c919f5c7742ab2abf601db422e4e8fea36d511c2",
+  "node_engines": "^22.19.0 || ^24.11.0 || >=26.0.0",
+  "bins": ["rea", "rea-agents"],
+  "mcp_manual_block": {"command": "npx", "args": ["-y", "rea-agents@6.4.0", "mcp"]},
+  "mcp_launcher": "installed absolute node + <state>/pkg/scripts/rea.mjs mcp (no npx re-resolve)",
+  "install_model": "private prefix: sha512 tarball verify + pinned-commit lockfile + npm ci; no global npm mutation",
+  "ghidra": {
+    "version": "12.1.4",
+    "zip_url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip",
+    "zip_sha256": "ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db",
+    "jdk": "64-bit full JDK 21+ with javac (operator-provided)",
+    "env": "GHIDRA_INSTALL_DIR=<state>/ghidra/ghidra_12.1.4_PUBLIC"
+  },
+  "proprietary": "hopper/ida are explicit fail-closed prerequisites (operator-licensed)",
+  "cli_verified": [
+    "rea analyze-javascript-application <abs-dir-or-asar> --json",
+    "rea analyze <abs-binary> --provider <id> --json",
+    "rea providers --json",
+    "rea capabilities --json",
+    "rea doctor [--provider <id>] --json",
+    "rea --help"
+  ],
+  "cli_exits": {"0": "completed", "1": "could not complete", "128+N": "signal N"},
+  "native_prereq": "Hopper, Ghidra or IDA provider; offline ELF needs caller pwntools on Linux x64",
+  "cli_docs": "https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/cli.md"
+}

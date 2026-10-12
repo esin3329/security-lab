@@ -1,15 +1,22 @@
 # security-lab MVP — 실습 타겟 정의 (Juice Shop 1개만)
 # 사용 환경: VM(Ubuntu) 내부에서만 실행. Host(Windows)에서 직접 실행 금지.
-# 검증은 사용자가 직접: docker compose -f infra/compose.targets.yml up -d
+# 실행: tools/ctf/practice.py가 private event 상태로 환경을 주입한다.
 # Phase 2 이후: WebGoat, 자작 API 추가 예정 (이번 MVP에 포함하지 않음).
 
 services:
   # OWASP Juice Shop — 로컬 소유 실습용 취약 웹앱
   juice-shop:
-    # 핀 고정 권장: latest 사용 금지, 동작 검증된 태그로 교체할 것
-    # 예: bkimminich/juice-shop:v17.1.1
+    # 공식 v17.1.1 / commit 39b46860612990ae18d499a20472172839fe8c77
     image: bkimminich/juice-shop:v17.1.1
     container_name: juice-shop
+    environment:
+      NODE_ENV: ctf
+      CTF_KEY: "${CTF_KEY:?private event CTF_KEY is required}"
+    labels:
+      io.security-lab.ctf.project: "${CTF_PROJECT_ID:?private CTF project is required}"
+      io.security-lab.ctf.event: "${CTF_EVENT_ID:?private CTF event is required}"
+      io.security-lab.ctf.round: "${CTF_ROUND:?private CTF round is required}"
+      io.security-lab.ctf.source-commit: "39b46860612990ae18d499a20472172839fe8c77"
     # 재시작 정책 명시 (MVP 요구사항)
     restart: "unless-stopped"
     # 호스트에는 127.0.0.1로만 게시 (0.0.0.0 바인드 금지)
@@ -26,6 +33,10 @@ services:
 volumes:
   juice-shop-data:
     driver: local
+    labels:
+      io.security-lab.ctf.project: "${CTF_PROJECT_ID:?private CTF project is required}"
+      io.security-lab.ctf.event: "${CTF_EVENT_ID:?private CTF event is required}"
+      io.security-lab.ctf.round: "${CTF_ROUND:?private CTF round is required}"
 
 # 격리 네트워크 정의 — internal:true 로 외부 egress 차단
 networks:

@@ -98,3 +98,35 @@ MVP에 남긴 구체적인 작업은 다음과 같다. 이번 통합은 필요�
 
 현재 완료하는 범위는 방향·문서·작업 경계의 전환과 검증된 기존 결과 보존이다. 실제 flag 수집·판정, hill 점유/점수, 새로운 tool wrapper, VM 실행 성공은 완료로 표시하지 않는다. 이후 로컬 CTF 기반, 실제 도구 연동, KoTH 기반을 작업 단위로 분리해 배정하고 agy가 확정된 인터페이스의 안내를 맞춘다.
 
+## 8. 4개 병렬 작업 단위 코드 통합 (2026-10-12, 코디네이터)
+
+7절에서 분리 배정한 네 작업 단위(CTF/KoTH/도구 통합/문서)가 각자의 worktree에 구현을 마치고 커밋 전 상태로 대기 중이었다. 이 절은 코디네이터가 그 결과를 `main`에 통합한 내역과 검증 범위를 기록한다. 각 worktree의 Git 커밋을 그대로 병합(`git merge`)하지 않고, 지난 1~2절과 같은 방식으로 파일 단위 최소 통합을 적용했다 — 각 작업 단위가 자신에게 배정된 경로만 수정했는지 먼저 diff로 확인했기 때문이다.
+
+### 통합한 파일
+
+| 작업 단위 | 원본 worktree/branch | 통합한 파일 |
+|---|---|---|
+| CTF 기반 | `.worktrees/ctf-runtime` / `practice/ctf-runtime` | `infra/compose.targets.yml` (CTF mode 환경변수·라벨 추가), `tools/ctf/practice.py`, `tools/ctf/juice-shop.lock.json` (신규) |
+| KoTH 외부 판정 | `.worktrees/koth-runtime` / `practice/koth-runtime` | `tools/koth/practice.py`, `judge.py`, `observer.py`, `probe.py`, `state.py` (신규) |
+| 도구 통합 | `.worktrees/tool-integration` / `practice/tool-integration` | `tools/lab/practice.py`, `common.py`, `strix_tool.py`, `rea_tool.py`, `artex_tool.py`, `pwn_tool.py`, `__init__.py`, `pins.json` (신규), `tools/rea/pin.json` (신규), `tools/artex-ko/pin.json`·`docker-compose.pinned.yml` (신규), `tools/strix/strix.lock.json` (신규), `tools/strix/run.ps1` (삭제) |
+| 문서 | `.worktrees/practice-docs` / `practice/documentation` | `README.md`, `targets/README.md`, `logs/README.md`, `pwn/challenges/README.md`, `pwn/exploits/README.md`, `tools/strix/README.md`, `tools/rea/README.md`, `tools/artex-ko/README.md` — 코디네이터가 "병렬 구현 진행 중" 표현을 위 코드 통합 결과에 맞춰 "통합 완료/VM 실행 미수행"으로 수정해 반영했다 |
+| 배포 경로 (신규, main에서 직접 작업) | 없음 (worktree 미사용) | `infra/deploy.py`, `infra/tests/test_deploy.py`. tracked 소스를 tar로 묶어 SSH로 Ubuntu 서버 VM에 전송하고, 수신측에서 sha256·매니페스트·대상 소유권/심링크를 검증한 뒤 `releases/<hash>` 디렉터리에 압축을 풀고 `current` 심링크를 원자적으로 교체한다. 설치 명령이나 서비스 기동은 수행하지 않는다 (`services_started: false` 고정). |
+
+### 검증한 것과 검증하지 않은 것
+
+- **정적/로컬 검증 (수행함):**
+  - `python3 -m py_compile`로 `tools/lab`, `tools/ctf`, `tools/koth`, `infra/deploy.py`와 각 테스트 파일의 구문 오류 없음을 확인했다.
+  - 세 컨트롤러(`tools/ctf/practice.py`, `tools/koth/practice.py`, `python3 -m tools.lab.practice`)의 `--help`가 정상 출력되어 argparse 정의가 로드 가능함을 확인했다.
+  - `infra/compose.targets.yml`을 `yaml.safe_load`로 파싱해 CTF mode 환경변수·라벨 추가 후에도 유효한 YAML임을 확인했다.
+  - `python3 infra/deploy.py plan`을 실행해 `infra/deploy.py`가 요구하는 네 항목(`infra/compose.targets.yml`, `tools/ctf/practice.py`, `tools/koth/practice.py`, `tools/lab/practice.py`)이 모두 추적 파일로 존재함을 확인했다(39개 파일, 로컬 패키징만 수행, 네트워크 전송 없음).
+  - 기존 회귀 테스트 `infra/tests/test_deploy.py`(수신측 소유권/심링크/원자적 교체 경계 4종)와 `tools/strix/tests/test_metrics.py`(동시 중복·fsync 실패·손상된 tail 거부 3종)가 모두 통과했다.
+  - `tools/rea/pin.json`, `tools/artex-ko/pin.json`, `tools/strix/strix.lock.json`에 선언된 release/commit/sha256/digest 핀이 각 `tools/lab/*_tool.py` 모듈 내부 상수와 일치하는지 대조했다.
+- **수행하지 않은 것 (이번 통합의 범위 밖):**
+  - 서버 Ubuntu VM에서의 실제 도구 설치·실행, Docker 빌드, Juice Shop CTF mode 기동, flag 판정, KoTH judge 실행, `infra/deploy.py`의 실제 `--target` SSH `check`/`deploy`.
+  - Windows SSH config의 기존 VM 후보 재접속 시도. 7절에 기록된 BatchMode timeout 상태를 그대로 유지하며, 재시도나 연결 성공을 주장하지 않는다.
+  - 각 worktree 자체의 git 커밋(여전히 작업트리에 uncommitted 상태로 남아 있다); `main`에는 파일 복사 결과만 반영했다.
+
+### 인계
+
+이번 통합으로 `infra/deploy.py plan`이 성공하는 전제조건(네 항목 모두 추적됨)이 충족되어, 배포 경로 구현(`infra/deploy.py`)과 CTF/KoTH/도구 통합 코드가 `main`에서 함께 추적된다. 다음 단계는 사용자가 실제 Ubuntu VM의 SSH 접속 정보(alias/포트/식별 키)를 확정해 `python3 infra/deploy.py check --target <alias> --approve-target <alias>`로 연결을 재확인하는 것이며, 그 전까지 이 통합을 실제 실행 성공이나 CTF/KoTH 완료로 확대하지 않는다.
+

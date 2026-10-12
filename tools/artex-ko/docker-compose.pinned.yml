@@ -1,0 +1,85 @@
+# ARTEX-KO pinned local compose (v0.3.15-ko.1).
+#
+# Base: upstream docker-compose.yml at tag v0.3.15-ko.1
+# (https://github.com/jiwoochris/artex-ko/blob/v0.3.15-ko.1/docker-compose.yml).
+# Pinned deviations, all fail-closed:
+# - images are exact registry digests (no tags, no ${ARTEX_TAG} indirection);
+#   the launcher additionally enforces config+index exact-match per arch.
+# - postgres lives ONLY on the internal dblink network (no egress, reachable
+#   only by artex). artex lives ONLY on dblink too: every attached network is
+#   internal:true. There is no default/external egress network here.
+# - target reachability uses the discovered internal targets engine network,
+#   attached at runtime by the launcher after verifying it is internal. No
+#   network name is hardcoded here. The targets compose itself is never modified.
+# - LLM traffic leaves only toward the operator's approved local gateway
+#   endpoint (ARTEX_LLM_BASE_URL prerequisite, launcher-enforced); direct
+#   arbitrary internet from these containers is not provided by this file.
+# - ports are hardcoded loopback (no ARTEX_BIND override path).
+# - ./skills bind removed: an empty host dir would shadow the image's own
+#   skills. ./data resolves under the private state dir because install
+#   copies this file there; nothing is written into Git.
+# - No Docker socket mount, no judge/management exposure, no update channel
+#   (update endpoints are never called; the binary runs read-only, below).
+# - artex runs on a read-only rootfs with tmpfs for /tmp and /run plus
+#   no-new-privileges: in-place binary replacement (update apply) cannot
+#   write, and container recreation needs the Docker socket, which is not
+#   mounted. Full capability drops are NOT applied because the in-container
+#   agent tooling (e.g. raw-socket recon) is the documented product function.
+# Secrets come only from the 0600 state env file (--env-file at runtime).
+
+services:
+  postgres:
+    image: postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-artex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?artex.env 파일에 POSTGRES_PASSWORD를 설정하세요}
+      POSTGRES_DB: ${POSTGRES_DB:-artex}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - dblink
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-artex} -d ${POSTGRES_DB:-artex}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  artex:
+    image: ghcr.io/jiwoochris/artex-ko@sha256:cda198c05578bf1ef09cf4992aa5cd370ca76447e7c3b3c8e3cd308c593b3d75
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ARTEX_PG_DSN: postgres://${POSTGRES_USER:-artex}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-artex}?sslmode=disable
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ARTEX_LLM_PROVIDER: ${ARTEX_LLM_PROVIDER:-}
+      ARTEX_LLM_MODEL: ${ARTEX_LLM_MODEL:-}
+      ARTEX_LLM_BASE_URL: ${ARTEX_LLM_BASE_URL:-}
+      ARTEX_LLM_PROXY: ${ARTEX_LLM_PROXY:-}
+      ARTEX_SETUP_TOKEN: ${ARTEX_SETUP_TOKEN:-}
+      ARTEX_ADMIN_PASSWORD: ${ARTEX_ADMIN_PASSWORD:-}
+      ARTEX_CORS_ORIGINS: ${ARTEX_CORS_ORIGINS:-}
+      ARTEX_LANG: ${ARTEX_LANG:-}
+    ports:
+      - "127.0.0.1:8787:8787"
+      - "127.0.0.1:8788:8788"
+    volumes:
+      - ./data:/app/data
+    networks:
+      - dblink
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
+networks:
+  dblink:
+    internal: true
