@@ -1,11 +1,12 @@
-# security-lab 최종 통합 검토
+# security-lab 통합 검토 및 CTF·KoTH 방향 전환
 
 - 작성일: 2026-10-12 (Asia/Seoul).
 - 대상: `C:\project\security-lab` / `/mnt/c/project/security-lab` 전체.
 - 작업: `task_4810be274f9d`, Dispatch `ctx_4c11055b3291`.
-- 후속 배정 변경: agy의 잡무 담당은 유지하고, 나머지 Herdr 에이전트는 [설계서](design-lead.md)의 작업별 배정안을 따른다. 사용자가 병렬 워크트리 배분을 승인했으며 A단계 구현·문서 작업을 배정한다. 아래 기존 Task/Dispatch의 완료 결과와 검증 증거는 변경하지 않으며, 실제 대상 실행과 Phase 2는 별도 범위로 유지한다.
-- **이번 통합 검토: 통과. 전체 MVP 완료 판정: 미완료.** 스키마·allowlist·Compose·ground-truth의 정적 검사를 수행하고 문서/출력 안내의 충돌을 정리했다. 스키마 정책 강제와 실행 기능은 미완료이며 실제 실행·실측 성공을 주장하지 않는다.
-- 외부 요청·스캔, Docker/Strix/pwn 빌드·기동·실행, 페이로드 추가, Phase 2 구현을 수행하지 않았다. 로컬 파일 읽기, Python 정적 검사, Orca 결과 조회와 최소 수정만 수행했다.
+- **현행 주 목표:** 각 도구를 활용한 깃발 획득(CTF)과 King of the Hill 실습. 실습 사이트는 보조한다. [현행 작업계획](design-lead.md)을 기준으로 작업별 분담·agy 문서 담당·병렬 worktree를 유지한다.
+- **아래 1~6절은 최초 벤치마킹 통합 당시의 이력이다.** 기존 Task/Dispatch의 결과와 검증 증거를 소급 변경하지 않는다. 현재 구현·검증·중지 상태는 7절을 따른다.
+- 최초 통합 검토는 통과했으나 당시 전체 MVP는 미완료였고, 스키마 정책 강제·실제 실행·실측 비교가 남았다. 이후 보조 기록기와 pwn 수정은 원본에 반영했지만 CTF/KoTH 게임을 구현·실행한 것은 아니다.
+- 최초 검토에서는 외부 요청·스캔과 Docker/Strix/pwn 빌드·실행을 하지 않았다. 후속 작업에서도 실제 대상 실행·게임·flag 제출은 하지 않았으며 공식 메타데이터 조회와 로컬 합성 입력 검증만 수행했다.
 
 ## 1. 선행 결과 리뷰
 
@@ -74,3 +75,26 @@ MVP에 남긴 구체적인 작업은 다음과 같다. 이번 통합은 필요�
 ## 6. 인계
 
 이번 Dispatch의 acceptance인 최종 보고서 존재와 정합 체크 4항목 기록을 충족했다. 코디네이터는 이번 검토 완료와 전체 MVP 미완료를 구별해 인계하고, A의 잔여 구현 및 B의 사용자 VM 검증을 배정할 수 있다. C는 ground-truth 확정 전 차단으로 유지한다.
+
+## 7. 현행 CTF·KoTH 전환과 후속 작업 상태
+
+### 방향과 보존
+
+- 주 실습은 소유한 로컬 격리 환경의 실제 CTF flag 판정과 KoTH 점유·방어다. 기존 8지표 비교는 보조 관찰이며 새 실습의 선행 완료 조건이 아니다.
+- 실습 사이트는 학습·문제 선택·규칙·허가된 수동 실습을 보조한다. 링크를 외부 자동 스캔 허가나 allowlist 추가로 해석하지 않는다.
+- 원본은 로컬 Git 기준 커밋 `1c863bd`로 시작했고 `.worktrees/docs`, `metrics-recording`, `pwn-environment`, `strix-runtime`을 만들었다. 원격 저장소와 전역 Git 설정은 바꾸지 않았다.
+- 원본 반영된 기존 결과는 pwn 수정(`35124fc`)과 보조 기록기/스키마(`48ab6df`)다. 기록기의 합성 CLI 스모크와 3개 회귀 테스트는 통과했다. 실제 benchmark/CTF/KOTH 측정이나 flag 획득 증거는 아니다.
+- Strix의 후속 변경은 Codex가 사용자 목표 변경을 받아 안전 체크포인트에서 저장하고 중지했다. 두 파일(`run.ps1`, `strix.lock.json`)은 `strix-runtime` worktree에 보존하고 원본에 통합하지 않았다. 실제 pwsh/fixture 동작·900초/인터럽트·sidecar/임시 경로 소유권은 미검증 또는 잔여다.
+
+### 실습 계약
+
+- CTF는 고정 Juice Shop의 실제 CTF mode/비공개 event key, 실제 flag code와 판정 receipt, 안전한 기록·reset으로 진행하는 후속 작업이다. 고정 `v17.1.1/config/ctf.yml`의 flag notification 설정은 공식 파일에서 확인했지만 현재 Compose에는 CTF 설정이 없다.
+- 바이너리 CTF는 허가된 flag-bearing 문제를 별도 선정한다. Phoenix Stack Zero의 성공 메시지를 실제 flag로 가장하지 않는다.
+- KoTH는 별도 owned VM의 protected king marker, 외부 판정기·clock·score/reset, 서비스 상태와 검증된 tick으로 점유를 관측하는 모델이다. 개발 worktree는 참가자 보안 격리가 아니다. 해당 VM/판정/scoreboard는 아직 구현·실행하지 않았다.
+- REA는 리버싱/MCP 도구 `morluto/rea`, ARTEX-KO는 `jiwoochris/artex-ko`를 문서 기준으로 정리한다. 실제 설치·고정 버전·연동은 후속 구성 작업이다.
+- [Dreamhack](https://dreamhack.io/wargame/), [pwn.college](https://pwn.college/), [TryHackMe KoTH 규칙](https://help.tryhackme.com/en/articles/6498315-king-of-the-hill-overview)을 보조로 사용한다. pwn.college 공개 풀이 제한과 TryHackMe 자동 hacking/hardening script 금지를 지킨다.
+
+### 현재 완료와 다음 배정의 구분
+
+현재 완료하는 범위는 방향·문서·작업 경계의 전환과 검증된 기존 결과 보존이다. 실제 flag 수집·판정, hill 점유/점수, 새로운 tool wrapper, VM 실행 성공은 완료로 표시하지 않는다. 이후 로컬 CTF 기반, 실제 도구 연동, KoTH 기반을 작업 단위로 분리해 배정하고 agy가 확정된 인터페이스의 안내를 맞춘다.
+
