@@ -21,3 +21,4 @@
 - 주 목표는 도구 기반 CTF/KoTH, 사이트는 보조로 변경됐다. 기존 benchmark schema/recorder는 별도 완결 관찰 계약으로 유지하며, CTF/KoTH 결과를 그 형식에 넣지 않는다.
 - Codex는 기존 Strix 후속 변경을 두 파일에 저장하고 중지했다. 원본 미통합·미검증이며 실제 동작 성공을 주장하지 않는다. VM/Docker/Strix/ARTEX/REA/pwn 실행·CTF flag 제출·KoTH 게임 기동은 수행하지 않았다.
 - 공식 Juice Shop CTF 문서와 고정 v17.1.1 설정, 도구 프로젝트, 보조 사이트 규칙만 조회했다. TryHackMe KoTH의 자동 공격·하드닝 script 금지와 pwn.college 공개 풀이 제한을 반영한다.
+- 원본에 통합한 방향 전환 문서 14개의 상대 링크 12개, 표 열 수, 코드 fence 정합을 검사해 통과했다. 실제 CTF/KoTH UI·게임·도구 실행 검증으로 확대하지 않는다.
