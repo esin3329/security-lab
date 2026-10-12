@@ -20,11 +20,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim-tiny \
   && rm -rf /var/lib/apt/lists/*
 
-# pwndbg 설치 (고정 커밋 권장: latest 추적 금지)
-# 실제 커밋 해시는 사용자가 코드리뷰 후 고정할 것
-# 예: git checkout <핀된-커밋-해시>
-RUN git clone --depth 1 https://github.com/pwndbg/pwndbg.git /opt/pwndbg \
-  && /opt/pwndbg/setup.sh --yes || true
+# pwndbg 설치 (immutable release 2026.09.15 고정, 설치 실패 전파)
+# 공식 근거:
+# - release/tag 2026.09.15 (Immutable release): https://github.com/pwndbg/pwndbg/releases/tag/2026.09.15
+# - commit 55596aa676a2756efb8d67034f31675170eabe48: https://github.com/pwndbg/pwndbg/commit/55596aa676a2756efb8d67034f31675170eabe48
+# - tag->commit 메타데이터: https://api.github.com/repos/pwndbg/pwndbg/tags (2026.09.15 -> 위 SHA)
+# - 설치법(인자 없는 ./setup.sh, legacy): https://pwndbg.re/stable/setup/
+# - 지원 옵션 근거(--update/--help만 지원, --yes 미지원): https://raw.githubusercontent.com/pwndbg/pwndbg/2026.09.15/setup.sh
+# - upstream Dockerfile 동일 호출: https://raw.githubusercontent.com/pwndbg/pwndbg/2026.09.15/Dockerfile (`DEBIAN_FRONTEND=noninteractive ./setup.sh`)
+RUN git clone https://github.com/pwndbg/pwndbg.git /opt/pwndbg \
+  && cd /opt/pwndbg \
+  && git checkout 55596aa676a2756efb8d67034f31675170eabe48 \
+  && test "$(git rev-parse HEAD)" = "55596aa676a2756efb8d67034f31675170eabe48" \
+  && ./setup.sh
 
 # pwntools 설치 (버전 고정 권장)
 RUN pip3 install --no-cache-dir --break-system-packages "pwntools==4.14.0"
