@@ -31,7 +31,7 @@
 
 1. **로컬 준비:** `pwn/Dockerfile` 정적 설정 확인 및 로컬 챌린지 파일 준비.
 2. **정적/모의 확인:** Dockerfile 구성(Ubuntu 24.04, GDB, pwntools==4.14.0), pwndbg 2026.09.15 commit `55596aa676a2756efb8d67034f31675170eabe48` 고정(공식 commit/tags API 확인), legacy `setup.sh`의 `--yes` 미지원 옵션 제거 및 오류 전파 설정 정적 점검.
-3. **사용자 VM 검증:** 사용자의 격리된 로컬 Ubuntu VM 환경에서 컨테이너 빌드 및 도구(`gdb + pwndbg`) 동작 확인 (현재 Ubuntu VM은 SSH BatchMode timeout으로 연결 확인 대기 중이며, 실제 컨테이너 빌드 및 VM 실행은 **미실행**, Windows 호스트 빌드/실습 금지). `tools/lab/pwn_tool.py`(`python3 tools/lab/practice.py --tool pwn <install|doctor|run>`)가 이 빌드/실행을 담당하는 컨트롤러로 통합 완료되었습니다.
+3. **사용자 VM 검증:** 사용자의 격리된 로컬 Ubuntu VM 환경에서 컨테이너 빌드 및 도구(`gdb + pwndbg`) 동작 확인 (Ubuntu VM(`<operator-vm>`) SSH 연결·인증은 `infra/ssh-tailscale.sh`(Tailscale SSH) 경로로 확인했으나, 실제 컨테이너 빌드 및 VM 실행은 여전히 **미실행**, Windows 호스트 빌드/실습 금지). `tools/lab/pwn_tool.py`(`python3 tools/lab/practice.py --tool pwn <install|doctor|run>`)가 이 빌드/실행을 담당하는 컨트롤러로 통합 완료되었습니다.
 4. **기록:** 관찰 결과는 `pwn/exploits/`에 플래그 본문과 완성 공격 코드 없이 판정 receipt 및 한국어 관찰 메모로 기록.
 
 ---

@@ -58,7 +58,7 @@ Get-Content .\targets.allow
   - 기존 구형 래퍼의 `StrixArgs` 미지정 거부 결함(코드 7), unchecked version/argv는 list-form spawn 고정 argv로 해소했고, 컨테이너 정리와 임시 디렉터리 소유권은 `finally` 블록에서 라벨 기준으로 강제합니다.
   - 위 1~4절의 `run.ps1`/코드 0~7 설계는 폐기된 과거 산출물 기록이며 현재 실행 진입점이 아닙니다.
 - **실행 환경 및 실제 실행 미수행:**
-  - 사용자 선택에 따라 실제 실행 환경은 **기존 Ubuntu VM**으로 확정되었으나, SSH BatchMode timeout으로 인해 현재 접속 준비 상태입니다. `infra/deploy.py check`로 연결을 재확인하기 전까지 배포를 시도하지 않습니다.
+  - 사용자 선택에 따라 실제 실행 환경은 **기존 Ubuntu VM**(`<operator-vm>`)으로 확정되었습니다. `infra/deploy.py check --ssh-executable infra/ssh-tailscale.sh`로 Tailscale SSH 경로의 연결·인증을 확인했으나, `infra/deploy.py deploy`(실제 소스 전송)는 아직 시도하지 않았습니다.
   - 코드 통합은 완료했으나 실제 VM 환경에서의 Docker/Strix 설치, 실행, 스캔 실습은 모두 **미실행** 상태이며 성공 또는 완료로 표시하지 않습니다.
 - **주소 구분 및 격리:**
   - 컨테이너 대상 주소: `juice-shop:3000` (`targets-net`, `internal: true`)

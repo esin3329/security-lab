@@ -22,7 +22,8 @@
 security-lab/
 ├── infra/                 # 격리 인프라 정의 및 배포
 │   ├── compose.targets.yml # Juice Shop v17.1.1, targets-net, CTF mode 환경변수/라벨
-│   └── deploy.py          # tracked 소스 → 서버 Ubuntu VM 원자적 배포 (설치/서비스 기동 없음)
+│   ├── deploy.py          # tracked 소스 → 서버 Ubuntu VM 원자적 배포 (설치/서비스 기동 없음)
+│   └── ssh-tailscale.sh   # deploy.py --ssh-executable 어댑터 (일반 SSH 대신 `tailscale ssh` 사용)
 ├── targets/               # 실습 대상 환경 안내 (targets/README.md)
 ├── tools/                 # 보안 도구 실행 래퍼, 실습 컨트롤러 및 안내
 │   ├── ctf/               # CTF 컨트롤러 및 플래그 판정기 (코드 통합 완료, VM 실행 미수행)
@@ -49,10 +50,16 @@ security-lab/
 
 4개 작업 단위(CTF/KoTH/도구 통합/문서)가 독립 Git worktree에서 병렬 구현한 결과를 코디네이터가 `main`에 통합했습니다. 통합은 코드·문서 병합과 정적 검증(컴파일, 기존/신규 단위 테스트, `infra/deploy.py plan`)까지이며, 서버 VM에서의 실제 설치·실행은 포함하지 않습니다.
 
-### 1) 실행 환경: 기존 Ubuntu VM 연결 준비 상태
-- 사용자의 선택에 따라 실제 Docker/도구/게임 실행 환경은 **기존 Ubuntu VM**으로 확정되었습니다.
-- **연결 확인 사실:** Windows SSH config에서 기존 VM 후보를 확인했으나, 비대화식 BatchMode 접속 시 timeout이 발생했습니다. 이후 재시도는 수행하지 않았습니다.
-- **판정 경계:** 실제 VM 접속 및 인증이 확정되기 전에는 실제 대상 실행, 도구 설치, 스캔, 플래그 제출을 수행하지 않으며, 실제 VM 설치·flag·게임 성공을 주장하지 않습니다. `infra/deploy.py check --target <alias>`로 연결을 재확인하는 것이 다음 단계입니다.
+### 1) 실행 환경: 기존 Ubuntu VM 연결 확인됨 (Tailscale SSH)
+
+- 사용자의 선택에 따라 실제 Docker/도구/게임 실행 환경은 **기존 Ubuntu VM**(Tailscale 노드명 `<operator-vm>`)으로 확정되었습니다.
+- **연결 경로 변경 사실:** 처음 시도한 일반 OpenSSH(Windows SSH config의 `user@<IP>`, BatchMode)는 `authorized_keys`에 등록된 키가 없어 `Permission denied (publickey,password)`로 거부되었습니다. 그 VM에서 Tailscale SSH 기능(`sudo tailscale up --ssh`)을 켠 뒤, `tailscale ssh`의 1회 브라우저 세션 승인을 거쳐 연결에 성공했습니다.
+- **`infra/deploy.py check` 실행 결과 (실제 성공):** `infra/ssh-tailscale.sh`를 `--ssh-executable`로 지정해 실행한 `python3 infra/deploy.py check --target user@<operator-vm-ip> --ssh-executable infra/ssh-tailscale.sh`가 아래 실제 VM 메타데이터를 반환했습니다(`services_started: false`, 아무것도 설치·기동하지 않음):
+  ```json
+  {"home": "/home/user", "os_id": "ubuntu", "os_version": "26.04",
+   "platform": "linux", "python": [3, 14, 4], "uid": 1000, "services_started": false}
+  ```
+- **판정 경계:** 위는 "연결·인증 확인"일 뿐입니다. `infra/deploy.py deploy`로 실제 소스를 전송한 적도, 그 VM에서 Docker/Strix/REA/ARTEX/pwn을 설치·실행한 적도, CTF flag를 획득하거나 KoTH judge를 돌린 적도 없습니다. 이 확인을 실제 설치·게임 성공으로 확대하지 않습니다.
 
 ### 2) 작업 단위와 통합 결과
 | 작업 단위 | 원 Worktree / Branch | 통합된 범위 | 통합 후 상태 |
@@ -156,8 +163,8 @@ security-lab/
 ## 7. 현재 상태 및 사실 기반 명시
 
 1. **실제 실행 및 연결 상태:**
-   - 실제 Docker/도구/VM 실습, CTF 플래그 제출, KoTH 인프라 기동은 **모두 미실행** 상태입니다.
-   - Ubuntu VM SSH 연결은 현재 BatchMode timeout 상태로, 연결 및 인증 확정 전까지 실제 VM 성공을 주장하지 않습니다.
+   - Ubuntu VM(`<operator-vm>`) 연결·인증은 Tailscale SSH로 **확인 완료**(`infra/deploy.py check` 실제 성공, 2절 참조). 일반 OpenSSH BatchMode 경로는 여전히 키 미등록으로 막혀 있으며, 이번에는 `infra/ssh-tailscale.sh` 어댑터로 우회했습니다.
+   - 그 위의 실제 Docker/도구 설치·실행, CTF 플래그 제출, KoTH 인프라 기동, `infra/deploy.py deploy`(실제 소스 전송)는 **모두 미실행** 상태입니다. 연결 확인을 실행·게임 성공으로 확대하지 않습니다.
 2. **도구 컨트롤러 구현 상태 (코드 통합 완료):**
    - `tools/ctf`, `tools/koth`, `tools/lab`(+`tools/rea`, `tools/artex-ko`, `tools/strix`의 pin 파일)을 `main`에 통합했습니다. 각 모듈은 `python3 -m py_compile`과 `--help` 인자 파싱으로 로드 가능함을 확인했습니다.
    - `infra/deploy.py`가 요구하는 네 항목(`infra/compose.targets.yml`, `tools/ctf/practice.py`, `tools/koth/practice.py`, `tools/lab/practice.py`)이 모두 추적 파일로 존재하여 `python3 infra/deploy.py plan`이 성공합니다 (서버 전송은 하지 않음).

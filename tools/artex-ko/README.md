@@ -23,7 +23,7 @@
 - **라이선스 요구사항:**
   - AGPL-3.0의 수정·배포·서비스 제공 관련 의무를 확인합니다. 소유한 환경 또는 서면 허가된 로컬 lab으로 제한하는 것은 본 프로젝트의 사용 정책입니다.
 - **실행 환경 및 미설치 상태:**
-  - 사용자 선택에 따라 실행 환경은 **기존 Ubuntu VM**으로 확정되었으나, SSH BatchMode timeout으로 인해 현재 접속 준비 상태입니다. `infra/deploy.py`로 코드 배포 전까지 VM에 ARTEX-KO를 설치하지 않습니다.
+  - 사용자 선택에 따라 실행 환경은 **기존 Ubuntu VM**(`<operator-vm>`)으로 확정되었고, Tailscale SSH(`infra/ssh-tailscale.sh`)로 연결·인증을 확인했습니다. `infra/deploy.py deploy`로 실제 코드 배포 전까지 VM에 ARTEX-KO를 설치하지 않습니다.
   - 코드 통합은 완료했으나 실제 VM 환경에서 ARTEX-KO 컨테이너 기동, 공격 경로 탐색 실습은 **미실행** 상태입니다.
 - **외부 사이트 공격 절대 금지:**
   - TryHackMe KoTH 등 공용 실습 사이트를 대상으로 한 Strix/ARTEX 자동화 공격은 엄격히 금지됩니다 (TryHackMe Rule 7: 자동 해킹 스크립트 금지 규정 준수).

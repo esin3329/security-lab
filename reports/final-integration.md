@@ -130,3 +130,31 @@ MVP에 남긴 구체적인 작업은 다음과 같다. 이번 통합은 필요�
 
 이번 통합으로 `infra/deploy.py plan`이 성공하는 전제조건(네 항목 모두 추적됨)이 충족되어, 배포 경로 구현(`infra/deploy.py`)과 CTF/KoTH/도구 통합 코드가 `main`에서 함께 추적된다. 다음 단계는 사용자가 실제 Ubuntu VM의 SSH 접속 정보(alias/포트/식별 키)를 확정해 `python3 infra/deploy.py check --target <alias> --approve-target <alias>`로 연결을 재확인하는 것이며, 그 전까지 이 통합을 실제 실행 성공이나 CTF/KoTH 완료로 확대하지 않는다.
 
+## 9. VM 연결 실제 확인 및 Tailscale SSH 어댑터 추가 (2026-10-13)
+
+8절에서 남긴 "SSH 접속 정보 확정 및 `deploy.py check` 재확인" 과제를 사용자와 함께 진행해 실제로 연결을 확인했다.
+
+### 실제로 있었던 일
+
+1. 사용자가 VM 주소(`<operator-vm-ip>`)를 제공했다. Windows SSH config의 기존 후보(`MiniPC` 별칭, 다른 IP `<other-known-host-ip>`)와는 다른 주소였다.
+2. 일반 OpenSSH로 먼저 시도했다: `ssh user@<operator-vm-ip>`(WSL 쪽 키 없음) 및 Windows의 `id_rsa`로도 `Permission denied (publickey,password)`로 거부됨. `infra/deploy.py check`가 강제하는 `BatchMode=yes`(비밀번호 프롬프트 없음)와 맞물려, 이 경로로는 인증할 수단이 없었다.
+3. `tailscale status`(Windows 클라이언트, `<tailnet-account>@` 계정)로 `<operator-vm-ip>`이 자신의 tailnet에 속한 노드 `<operator-vm>`(Linux)임을 확인했다.
+4. `tailscale ssh user@<operator-vm-ip>`을 처음 시도했을 때는 "No ED25519 host key is known ... as advertised via the Tailscale coordination server" 오류로 실패했다 — `<operator-vm>`에서 Tailscale SSH 서버 기능 자체가 꺼져 있었다는 뜻이다. 사용자가 `<operator-vm>`에 직접(콘솔) 접근해 `sudo tailscale up --ssh`를 실행한 뒤 재시도하자, 1회성 브라우저 세션 승인 링크(`https://login.tailscale.com/a/...`)가 나타났다. 사용자가 그 링크를 열어 승인한 뒤 재시도하자 `tailscale ssh`가 성공했다 (`whoami` → `user`, `hostname` → `<operator-vm>`, `/etc/os-release` → Ubuntu 26.04 LTS, `python3 --version` → 3.14.4).
+5. `infra/deploy.py`는 일반 `ssh` 실행 파일을 직접 호출하도록 만들어져 있어 `tailscale ssh`를 그대로 쓸 수 없었다. 이를 위해 `infra/ssh-tailscale.sh`를 `--ssh-executable` 어댑터로 작성했다: `deploy.py`가 항상 덧붙이는 `-o/-p/-J/-i/-F` 플래그(및 그 값)를 걷어내고, 남는 `<target>`과 단일 원격 명령 문자열만 `tailscale ssh`에 그대로 전달한다. 바이너리 탐색 순서는 `$SECURITY_LAB_TAILSCALE_BIN`(수동/테스트 오버라이드) → PATH의 `tailscale` → Windows 기본 설치 경로(WSL에서 Windows 쪽 Tailscale을 쓰는 경우) 순이며, 아무것도 못 찾으면 비밀 노출 없이 거부(exit 1)한다.
+6. `python3 infra/deploy.py check --target user@<operator-vm-ip> --ssh-executable infra/ssh-tailscale.sh`가 **실제로 성공**했다:
+   ```json
+   {"home": "/home/user", "os_id": "ubuntu", "os_version": "26.04",
+    "platform": "linux", "python": [3, 14, 4], "uid": 1000, "services_started": false}
+   ```
+
+### 검증
+
+- `infra/tests/test_ssh_tailscale.py`(3종)를 신규 작성해 `infra/ssh-tailscale.sh`의 플래그 제거 로직을 스텁 `tailscale` 바이너리로 검증했다: ① `deploy.py` 스타일 전체 인자(`-o`×3, `-p`, `-i`, `-F`)가 제거되고 target·명령 문자열만 그대로 전달됨, ② target이 없으면 exit 2로 거부, ③ `$SECURITY_LAB_TAILSCALE_BIN`이 실행 불가능하면 exit 1로 거부. 이 세 테스트는 `$SECURITY_LAB_TAILSCALE_BIN`을 항상 스텁이나 존재하지 않는 경로로 고정해, 실제 Tailscale 바이너리나 실제 VM을 전혀 건드리지 않도록 설계했다 — 처음 작성한 버전은 PATH만 깨서 "탐지 실패"를 흉내 내려 했으나, 이 개발 머신에는 실제 Windows Tailscale 클라이언트가 있어 3단계 fallback이 실제로 매치되어 **의도치 않게 실제 VM에 `echo hi`를 실행해버렸다**; 이를 발견하고 오버라이드 변수에 존재성 검증을 추가해 결정론적인 테스트로 고쳤다.
+- `infra/tests/`와 `tools/strix/tests/`의 기존 테스트까지 포함해 총 7개 테스트가 통과한다.
+- 문서(루트 `README.md`, `targets/README.md`, `pwn/challenges·exploits/README.md`, `tools/strix·rea·artex-ko/README.md`)의 "SSH BatchMode timeout" 서술을 모두 "Tailscale SSH로 연결·인증 확인됨, 그러나 설치·실행은 미실행"으로 갱신했다.
+
+### 여전히 하지 않은 것
+
+- `infra/deploy.py deploy`(실제 소스 전송)와 그 이후의 실제 Docker/Strix/REA/ARTEX/pwn 설치·실행, CTF mode 기동, flag 판정, KoTH judge 실행은 전혀 수행하지 않았다. 이번 절의 성과는 "연결·인증이 실제로 된다"는 것뿐이다.
+- Windows SSH config에 있던 기존 `authorized_keys` 미등록 문제는 그대로 남아 있다(해결한 것이 아니라 Tailscale SSH라는 다른 경로로 우회했다). 일반 `ssh`로의 접속은 여전히 거부된다.
+
